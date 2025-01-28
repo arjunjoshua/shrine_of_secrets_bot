@@ -1,0 +1,2 @@
+A Discord bot that checks in on Dead By Daylight's Shrine of Secrets every week and posts the new perks to a channel.
+Currently available as a custom bot that you can host yourself, but I plan to make it public soon.
