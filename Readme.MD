@@ -10,4 +10,4 @@ Currently available as a custom bot that you can host yourself, but I plan to ma
 ## Using the bot
 1) Add your desired channel ID and token from Step 2 of setting up as environment variables
 2) Host the bot on a computer/server of your choice
-3) Schedule the discord.py file to run every Tuesday at 15:00GMT 
+3) Schedule the discord.py file to run every Tuesday at 17:00GMT (The shrine resets at 15:00GMT, but the bot pulls data from https://nightlight.gg/shrine) 
