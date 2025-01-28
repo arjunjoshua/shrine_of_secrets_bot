@@ -31,8 +31,8 @@ async def on_ready():
 # send data to a channel
 async def send_to_channel(shrine_of_secrets):
     channel = client.get_channel(int(shrine_channel_id))
-    current_date = datetime.datetime.now().strftime("%b %d, /%Y")
-    date_in_one_week = (datetime.datetime.now() + datetime.timedelta(days=7)).strftime("%b %d, /%Y")
+    current_date = datetime.datetime.now().strftime("%b %d, %Y")
+    date_in_one_week = (datetime.datetime.now() + datetime.timedelta(days=7)).strftime("%b %d, %Y")
 
     formatted_shrine = f"Shrine of Secrets for {current_date} - {date_in_one_week}\n\n" + "\n".join(shrine_of_secrets)
 
