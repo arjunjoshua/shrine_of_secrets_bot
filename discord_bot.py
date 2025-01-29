@@ -31,10 +31,16 @@ async def on_ready():
 # send data to a channel
 async def send_to_channel(shrine_of_secrets):
     channel = client.get_channel(int(shrine_channel_id))
-    current_date = datetime.datetime.now().strftime("%b %d, %Y")
-    date_in_one_week = (datetime.datetime.now() + datetime.timedelta(days=7)).strftime("%b %d, %Y")
+    date = datetime.datetime.now()
 
-    formatted_shrine = f"Shrine of Secrets for {current_date} - {date_in_one_week}\n\n" + "\n".join(shrine_of_secrets)
+    # Get the next Tuesday's date
+    while date.weekday() != 3:
+        date += datetime.timedelta(days=1)
+
+    shrine_refresh_date = date.strftime("%b %d, %Y") + " 16:00 UTC"
+
+    formatted_shrine = (f"Shrine of Secrets currently contains the following perks:\n\n" + "\n".join(shrine_of_secrets)
+                        + f"\n\nAvailable until {shrine_refresh_date}")
 
     if channel:
         await channel.send(formatted_shrine)
