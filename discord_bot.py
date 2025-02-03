@@ -35,12 +35,12 @@ async def shrine(ctx: commands.Context):
     shrine_perks = get_shrine_from_nightlight()
 
     # send the shrine of secrets to the channel
-    await send_to_channel(shrine_perks)
+    await send_to_channel(shrine_perks, ctx.channel.id)
 
 
 # send data to a channel
-async def send_to_channel(shrine_of_secrets):
-    channel = bot.get_channel(int(shrine_channel_id))
+async def send_to_channel(shrine_of_secrets, channel_id=(int(shrine_channel_id))):
+    channel = bot.get_channel(channel_id)
     date = datetime.datetime.now()
 
     # Get the next Tuesday's date
