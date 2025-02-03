@@ -9,7 +9,10 @@ import asyncio
 
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
-shrine_channel_id = os.getenv("SHRINE_CHANNEL_ID")
+
+# read channel ids from the channel_ids.txt file
+with open("channel_ids.txt", "r") as f:
+    shrine_channel_ids = [int(line.strip()) for line in f]
 
 # Create a discord client
 intents = discord.Intents.default()
@@ -35,12 +38,23 @@ async def shrine(ctx: commands.Context):
     shrine_perks = get_shrine_from_nightlight()
 
     # send the shrine of secrets to the channel
-    await send_to_channel(shrine_perks, ctx.channel.id)
+    await send_to_channel(shrine_perks, [ctx.channel.id])
+
+
+@bot.command()
+async def subscribe_to_shrine(ctx: commands.Context):
+    # save the channel id to the .env file
+    shrine_channel_ids.append(ctx.channel.id)
+
+    with open("channel_ids.txt", "w") as f:
+        for channel_id in shrine_channel_ids:
+            f.write(f"{channel_id}\n")
 
 
 # send data to a channel
-async def send_to_channel(shrine_of_secrets, channel_id=(int(shrine_channel_id))):
-    channel = bot.get_channel(channel_id)
+async def send_to_channel(shrine_of_secrets, channel_ids=None):
+    if channel_ids is None:
+        channel_ids = shrine_channel_ids
     date = datetime.datetime.now()
 
     # Get the next Tuesday's date
@@ -52,8 +66,10 @@ async def send_to_channel(shrine_of_secrets, channel_id=(int(shrine_channel_id))
     formatted_shrine = (f"The Shrine of Secrets currently contains the following perks:\n\n" + "\n".join(shrine_of_secrets)
                         + f"\n\nAvailable until {shrine_refresh_date}")
 
-    if channel:
-        await channel.send(formatted_shrine)
+    for channel_id in channel_ids:
+        channel = bot.get_channel(channel_id)
+        if channel:
+            await channel.send(formatted_shrine)
 
 
 async def schedule_weekly_shrine():

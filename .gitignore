@@ -2,3 +2,4 @@
 .venv
 /update_server.sh
 __pycache__
+channel_ids.txt
