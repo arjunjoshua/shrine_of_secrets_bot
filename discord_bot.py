@@ -44,7 +44,7 @@ async def send_to_channel(shrine_of_secrets):
     date = datetime.datetime.now()
 
     # Get the next Tuesday's date
-    while date.weekday() != 3:
+    while date.weekday() != 1:
         date += datetime.timedelta(days=1)
 
     shrine_refresh_date = date.strftime("%b %d, %Y") + " 16:00 UTC"
