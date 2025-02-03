@@ -1,2 +1,4 @@
 .env
 .venv
+/update_server.sh
+__pycache__
