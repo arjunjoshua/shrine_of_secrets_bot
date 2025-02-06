@@ -36,3 +36,5 @@ if __name__ == "__main__":
     with open("shrine.txt", "w") as f:
         for perk in shrine:
             f.write(f"{perk}\n")
+
+    print("Shrine of Secrets updated")
