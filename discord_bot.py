@@ -38,7 +38,6 @@ async def on_ready():
 
 @bot.command()
 async def shrine(ctx: commands.Context):
-    shrine_perks = []
     # get the shrine of secrets from shrine.txt
     with open("shrine.txt", "r") as f:
         shrine_perks = [line.strip() for line in f]
@@ -52,6 +51,11 @@ async def shrine(ctx: commands.Context):
 
 @bot.command()
 async def subscribe_to_shrine(ctx: commands.Context):
+    # check if the channel id is already in the list
+    if ctx.channel.id in shrine_channel_ids:
+        await ctx.send("You are already subscribed to shrine updates.")
+        return
+
     # save the channel id to the .txt file
     shrine_channel_ids.append(ctx.channel.id)
 
