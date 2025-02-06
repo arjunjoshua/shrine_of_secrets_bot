@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import discord
 import datetime
-from main import get_shrine_from_nightlight
 from dotenv import load_dotenv
 import os
 from discord.ext import commands
@@ -9,6 +8,7 @@ import asyncio
 
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
+update_frequency = os.getenv("SHRINE_UPDATE_FREQUENCY")
 
 # read channel ids from the channel_ids.txt file
 with open("channel_ids.txt", "r") as f:
@@ -25,6 +25,10 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 async def on_ready():
     print(f'We have logged in as {bot.user}')
 
+    # schedule the weekly shrine update
+    if not hasattr(bot, 'shrine_update_task'):
+        bot.shrine_update_task = bot.loop.create_task(schedule_weekly_shrine())
+
     # # get the shrine of secrets
     # shrine_perks = get_shrine_from_nightlight()
     #
@@ -34,34 +38,68 @@ async def on_ready():
 
 @bot.command()
 async def shrine(ctx: commands.Context):
-    # get the shrine of secrets
-    shrine_perks = get_shrine_from_nightlight()
+    shrine_perks = []
+    # get the shrine of secrets from shrine.txt
+    with open("shrine.txt", "r") as f:
+        shrine_perks = [line.strip() for line in f]
+
+    if len(shrine_perks) == 0:
+        return
 
     # send the shrine of secrets to the channel
-    await send_to_channel(shrine_perks, [ctx.channel.id])
+    await send_shrine_to_channel(shrine_perks, [ctx.channel.id])
 
 
 @bot.command()
 async def subscribe_to_shrine(ctx: commands.Context):
-    # save the channel id to the .env file
+    # save the channel id to the .txt file
     shrine_channel_ids.append(ctx.channel.id)
 
     with open("channel_ids.txt", "w") as f:
         for channel_id in shrine_channel_ids:
             f.write(f"{channel_id}\n")
 
+    await ctx.send("You have been subscribed to shrine updates.")
+
+
+@bot.command()
+async def unsubscribe_from_shrine(ctx: commands.Context):
+    try:
+        # Remove the current channel ID if it exists
+        if ctx.channel.id in shrine_channel_ids:
+            shrine_channel_ids.remove(ctx.channel.id)
+
+            # Write updated IDs back to the file
+            with open("channel_ids.txt", "w") as f:
+                for channel_id in shrine_channel_ids:
+                    f.write(f"{channel_id}\n")
+
+            await ctx.send("You have been unsubscribed from shrine updates.")
+        else:
+            await ctx.send("You are not subscribed to shrine updates.")
+
+    except Exception as e:
+        print(e)
+        await ctx.send("An error occurred while trying to unsubscribe from shrine updates. Please contact the "
+                       "developer.")
+
 
 # send data to a channel
-async def send_to_channel(shrine_of_secrets, channel_ids=None):
+async def send_shrine_to_channel(shrine_of_secrets, channel_ids=None):
     if channel_ids is None:
         channel_ids = shrine_channel_ids
     date = datetime.datetime.now()
 
-    # Get the next Tuesday's date
-    while date.weekday() != 1:
-        date += datetime.timedelta(days=1)
+    if update_frequency == "daily":
+        # if the time is past 15:00 UTC, update the shrine for the next day
+        if date.hour >= 15:
+            date += datetime.timedelta(days=1)
+    else:
+        # Get the next Tuesday's date
+        while date.weekday() != 1:
+            date += datetime.timedelta(days=1)
 
-    shrine_refresh_date = date.strftime("%b %d, %Y") + " 16:00 UTC"
+    shrine_refresh_date = date.strftime("%b %d, %Y") + " 15:00 UTC"
 
     formatted_shrine = (f"The Shrine of Secrets currently contains the following perks:\n\n" + "\n".join(shrine_of_secrets)
                         + f"\n\nAvailable until {shrine_refresh_date}")
@@ -93,11 +131,17 @@ async def schedule_weekly_shrine():
 
         await asyncio.sleep(wait_time)  # Sleep until the target time
 
-        # Fetch and send shrine details
-        shrine_perks = await get_shrine_from_nightlight()
-        await send_to_channel(shrine_perks)
+        # read the shrine from the file
+        shrine_perks = []
+        with open("shrine.txt", "r") as f:
+            shrine_perks = [line.strip() for line in f]
+
+        # send the shrine to the channel
+        if len(shrine_perks) > 0:
+            await send_shrine_to_channel(shrine_perks)
 
 
 # start the bot
 bot.run(token)
+
 

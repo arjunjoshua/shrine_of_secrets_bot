@@ -3,7 +3,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 
 service = Service("/usr/local/bin/chromedriver")
-driver = webdriver.Chrome(service=service)
+
+options = webdriver.ChromeOptions()
+
+driver = webdriver.Chrome(service=service, options=options)
 
 nightlight_website_url = "https://nightlight.gg/shrine"
 
@@ -22,3 +25,12 @@ def get_shrine_from_nightlight():
     driver.quit()
 
     return shrine_perks
+
+
+if __name__ == "__main__":
+    shrine = get_shrine_from_nightlight()
+
+    # write the shrine to a file
+    with open("shrine.txt", "w") as f:
+        for perk in shrine:
+            f.write(f"{perk}\n")

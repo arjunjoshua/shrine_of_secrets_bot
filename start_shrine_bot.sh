@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cd /shrine_of_secrets_bot && xvfb-run ./discord_bot.py
+cd /shrine_of_secrets_bot && ./discord_bot.py
