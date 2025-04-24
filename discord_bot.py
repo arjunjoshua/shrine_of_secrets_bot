@@ -119,13 +119,13 @@ async def schedule_weekly_shrine():
 
     while not bot.is_closed():
         now = datetime.datetime.utcnow()
-        target_time = now.replace(hour=16, minute=0, second=0, microsecond=0)
+        target_time = now.replace(hour=15, minute=0, second=0, microsecond=0)
 
         # Find the next Tuesday
         days_until_tuesday = (1 - now.weekday()) % 7  # 0 = Monday, 1 = Tuesday, etc.
         target_time += datetime.timedelta(days=days_until_tuesday)
 
-        # If it's already past 16:00 UTC today, schedule for next week
+        # If it's already past the target time today, schedule for next week
         if now >= target_time:
             target_time += datetime.timedelta(weeks=1)
 
